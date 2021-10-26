@@ -2,10 +2,87 @@ import subprocess as sp
 import pymysql
 import pymysql.cursors
 import datetime
+from datetime import date
 
 
 
-operations=["invalid()","Add_details()","delivery_status()","Update_delivery()","Customer_details()","previous_purchases()","update_stock()","update_price()","Add_review()","cancel_order()","view_details()","view_by_manufacturer()","toc()","top()","search_product()","sort_view()"]
+operations=["invalid()","Add_details()","delivery_status()","Update_delivery()","Customer_details()","previous_purchases()","update_stock()","update_price()","Add_review()","cancel_order()","view_details()","view_by_manufacturer()","toc()","top()","search_product()","sort_view()","analyse()"]
+
+
+def calculateAge(birthDate):
+    today = date.today()
+    age = today.year - birthDate.year - ((today.month, today.day) < (birthDate.month, birthDate.day))
+    return age
+     
+
+def getage(cid):
+    query="select date,month,year from Customers where customer_id={}".format(cid)
+    cur.execute(query)
+    oup=cur.fetchall()[0]
+    ans=calculateAge(date(oup["year"], oup["month"], oup["date"]))
+    return ans
+    
+
+def analyse():
+    query="select * from product_purchased"
+    cur.execute(query)
+    teens={"mobiles":0,"laptops":0,"fashion":0,"other than mobiles/laptops/fashion":0}
+    midage={"mobiles":0,"laptops":0,"fashion":0,"other than mobiles/laptops/fashion":0}
+    oldage={"mobiles":0,"laptops":0,"fashion":0,"other than mobiles/laptops/fashion":0}
+    oup=cur.fetchall()
+    for i in oup:
+        cid=i["customer_id"]
+        pid=i["product_id"]
+        query2="select * from mobiles where product_id={}".format(pid)
+        query3="select * from laptops where product_id ={}".format(pid)
+        query4="select * from fashion where product_id={}".format(pid)
+        cur.execute(query2)
+        oup=cur.fetchall()
+        ptype="other than mobiles/laptops/fashion"
+        if(len(oup)>0):
+            ptype="mobiles"
+        else:
+            cur.execute(query3)
+            oup=cur.fetchall()
+            if(len(oup)>0):
+                ptype="laptops"
+            else:
+                cur.execute(query4)
+                oup=cur.fetchall()
+                if(len(oup)>0):
+                    ptype="fashion"
+                else:
+                    ptype="other than mobiles/laptops/fashion"
+        #print("**************")
+        ans=getage(cid)
+        if(ans<=19):
+            teens[ptype]+=1
+        elif(ans>19 and ans <25):
+            midage[ptype]+=1
+        else:
+            oldage[ptype]+=1
+ 
+    max_teens=max(teens,key=teens.get)
+    print()
+    print("Analysis from the purchase data")
+    print("_"*80)
+    print("Teenagers are interested in :  ",max_teens)
+    print("_"*80)
+
+    max_mid=max(midage,key=midage.get)
+    print("middle age are interested in :  ",max_mid)
+    print("_"*80)
+
+    max_old=max(oldage,key=oldage.get)
+    print("oldage are interested in : ",max_old)
+    print("_"*80)
+
+    
+
+            
+
+
+
 
 
 def search_product():
@@ -88,7 +165,7 @@ def  sort_view():
         print("product name :",i["product_name"],"   ","product id :",i["product_id"],"    ","product rating :",i["overall_rating"])
         print("-"*100)
 
-        
+
 
 def Add_review():
     cid=int(input("Enter customer id of the reviewer : "))
@@ -482,6 +559,7 @@ while(1):
                 print("13. View Total sales of a product")
                 print("14. search product names with starting/ending strings")
                 print("15. sort products on rating and view")
+                print("16. Analyse Age group Vs their purchases")
 
 
                 ch = int(input("Enter choice> "))
