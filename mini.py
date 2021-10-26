@@ -5,7 +5,40 @@ import datetime
 
 
 
-operations=["invalid()","Add_details()","delivery_status()","Update_delivery()","Customer_details()","previous_purchases()","update_stock()","update_price()","Add_review()","cancel_order()","view_details()","view_by_manufacturer()","toc()","top()"]
+operations=["invalid()","Add_details()","delivery_status()","Update_delivery()","Customer_details()","previous_purchases()","update_stock()","update_price()","Add_review()","cancel_order()","view_details()","view_by_manufacturer()","toc()","top()","search_product()","sort_view()"]
+
+
+def search_product():
+    print()
+    print("1. Start substring , 2. End substring")
+    inp=int(input("Enter your search type from above options (1/2) : "))
+    if(inp==1):
+        pattern=input("Enter your starting substring of the product name: ")
+        query="select * from products where product_name like '{}%'".format(pattern)
+        cur.execute(query)
+        oup=cur.fetchall()
+        print("Available products")
+        print("-"*45)
+        for i in oup:
+            print(i["product_name"]," : ",i["product_id"])
+            print("-"*45)
+    elif(inp==2):
+        pattern=input("Enter your ending substring of the product name: ")
+        query="select * from products where product_name like '%{}'".format(pattern)
+        cur.execute(query)
+        oup=cur.fetchall()
+        print("Available products")
+        print("-"*60)
+        for i in oup:
+            print("product name :",i["product_name"],"   ","product id :",i["product_id"])
+            print("-"*60)
+    else:
+        print("Invalid input")
+    
+
+        
+
+
 
 def view_details():
     print()
@@ -45,9 +78,17 @@ def view_details():
     print("_"*50)
 
 
+def  sort_view():
+    query="select * from products order by overall_rating DESC"
+    cur.execute(query)
+    oup=cur.fetchall()
+    print("Available products")
+    print("-"*100)
+    for i in oup:
+        print("product name :",i["product_name"],"   ","product id :",i["product_id"],"    ","product rating :",i["overall_rating"])
+        print("-"*100)
 
-
-
+        
 
 def Add_review():
     cid=int(input("Enter customer id of the reviewer : "))
@@ -96,14 +137,11 @@ def toc():
 def top():
     print()
     cid=int(input("Enter Product id: "))
-    query="select count(*) as total from customer_purchases where customer_id={}".format(cid)
+    query="select count(*) as total from product_purchased where product_id={}".format(cid)
     cur.execute(query)
     oup=cur.fetchall()
-    print("Total purchases of customer: ",oup[0]["total"])
-    query1="select count(*) as total from product_purchased where customer_id={}".format(cid)
-    cur.execute(query1)
-    oup=cur.fetchall()
-    print("Total products bought by the customer : ",oup[0]["total"])
+    print("Total sales of the product: ",oup[0]["total"])
+    
 
 
 
@@ -429,12 +467,11 @@ while(1):
         with con.cursor() as cur:
             while(1):
                 #tmp = sp.call('clear', shell=True)
-                # Here taking example of Employee Mini-world
-                print("1. Add details of a purchase")  # Hire an Employee
-                print("2. Check Delivery status") #check the delivery status
-                print("3. Update Delivery status for a Delivery")  # Fire an Employee
-                print("4. Update Customer details")  # Promote Employee
-                print("5. See customer previous purchases")  # Employee Statistics
+                print("1. Add details of a purchase")  
+                print("2. Check Delivery status") 
+                print("3. Update Delivery status for a Delivery")  
+                print("4. Update Customer details") 
+                print("5. See customer previous purchases")  
                 print("6. Update stock details of a product")
                 print("7. Update price of a product")
                 print("8. Add review of a customer")
