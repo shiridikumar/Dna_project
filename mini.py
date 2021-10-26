@@ -364,7 +364,7 @@ def cancel_order():
         orders="select * from orders where payment_id={}".format(pay_id)
         cur.execute(orders)
         ord=cur.fetchall()
-        query1="delete from payment where payment_id=1".format(pay_id)
+        query1="delete from payment where payment_id={}".format(pay_id)
         cur.execute(query1)
     except Exception as e:
         print(e)
@@ -432,7 +432,7 @@ def Add_details():
         street=input("Enter stree/area name of the delivery address : ")
         district=input("Enter district name of the delivery address : ")
         pincode=int(input("Enter pincode of the delivery adress : "))
-
+        method={"u":"UPI","cod":"cash on delivery","card":"Debit card"}
         query1="insert into Customer_purchases(Customer_id,Timestamp) values({},'{}');".format(cid,ct)
         cur.execute(query1)
 
@@ -440,7 +440,7 @@ def Add_details():
             query2="insert into product_purchased(Customer_id,product_id,Timestamp) values({},{},'{}');".format(cid,products_purchased[i],ct)
             cur.execute(query2)
         
-        query4="insert into payment(payment_id,payment_method,price,discount)  values({},'{}',{},{});".format(pay_id,payment_method,price,discount)
+        query4="insert into payment(payment_id,payment_method,price,discount)  values({},'{}',{},{});".format(pay_id,method[payment_method],price,discount)
         cur.execute(query4)
 
         query3="insert into delivery(payment_id,customer_id,Delivery_status,door_no,street,pincode) values({},{},'{}','{}','{}',{});".format(pay_id,cid,"recieved order",door_no,street,pincode)
